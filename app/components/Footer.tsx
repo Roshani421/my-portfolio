@@ -134,15 +134,15 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3> {/* Adjusted heading size/font */}
             <address className="not-italic text-gray-300"> {/* Adjusted text color */}
-              <p className="mb-2">Email: your.email@example.com</p>
-              <p className="mb-2">Location: City, Country</p>
+              <p className="mb-2">Email: subediroshani19@gmail.com</p>
+              <p className="mb-2">Location: Pokhara, Nepal</p>
             </address>
           </div>
         </div>
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
-          <p>© {currentYear} Your Portfolio. All rights reserved.</p> {/* Use currentYear from state */}
+          <p>© {currentYear} Roshani Portfolio</p> {/* Use currentYear from state */}
         </div>
       </div>
 
