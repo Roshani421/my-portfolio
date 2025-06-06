@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Phone, User, Linkedin, GraduationCap, ArrowRight, Sparkles } from "lucide-react";
+import { Mail, Phone, User, Linkedin, GraduationCap, ArrowRight, Sparkles, Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import React from "react";
 import ProjectCarousel from "../components/ProjectCarousel";
@@ -67,6 +67,15 @@ const About = () => {
                 className="flex items-center gap-1 text-pink-600 dark:text-pink-200 hover:underline animate-pulse hover:scale-110 transition-transform font-semibold"
               >
                 <ArrowRight size={16} />View Projects
+              </a>
+              <a
+                href="/RoshaniSubedi_CV.pdf" // Replace with your actual resume path
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 bg-pink-500 text-white dark:bg-purple-700 hover:bg-pink-600 dark:hover:bg-purple-800 px-2 py-1 rounded-full text-xs font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                <Download className="w-3 h-3 mr-1" />
+                Download Resume
               </a>
             </div>
           </div>

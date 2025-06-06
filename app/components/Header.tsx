@@ -41,7 +41,7 @@ export default function Header() {
             className="text-2xl font-bold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
           >
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-              manan
+              Manan
             </span>
           </Link>
 
