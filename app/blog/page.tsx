@@ -1,284 +1,286 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { User, Calendar, Clock, Heart, MessageSquare, Eye, PenSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Settings, Bot, Send, User, Lightbulb, Bell, Shield, Moon, Sun } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 
-export default function EvaAssistantPage() {
+// Mock data for blog posts
+const initialPosts = [
+  {
+    id: 1,
+    title: "Getting Started with React Hooks",
+    excerpt: "Learn how to use React Hooks to simplify your functional components",
+    content:
+      "React Hooks are a powerful feature that allows you to use state and other React features without writing a class. In this post, we'll explore the most commonly used hooks like useState, useEffect, and useContext...",
+    category: "Technical",
+    tags: ["react", "hooks", "javascript"],
+    date: "2024-05-28",
+    readTime: "5 min read",
+    author: "Manan",
+    likes: 24,
+    comments: 8,
+    views: 156,
+  },
+  {
+    id: 2,
+    title: "Building Responsive Layouts with Tailwind CSS",
+    excerpt: "A comprehensive guide to creating beautiful responsive designs with Tailwind",
+    content:
+      "Tailwind CSS has revolutionized the way we approach CSS by providing a utility-first framework. In this tutorial, we'll build a fully responsive layout using Tailwind's responsive modifiers and explore best practices...",
+    category: "Tutorial",
+    tags: ["tailwind", "css", "responsive-design"],
+    date: "2024-05-20",
+    readTime: "8 min read",
+    author: "Manan",
+    likes: 42,
+    comments: 15,
+    views: 230,
+  },
+]
+
+export default function BlogPage() {
+  const [posts, setPosts] = useState(initialPosts)
+  const [profileVisits, setProfileVisits] = useState(5)
+  const [isNewPostOpen, setIsNewPostOpen] = useState(false)
+  const [newPost, setNewPost] = useState({
+    title: "",
+    category: "",
+    content: "",
+  })
+  const [isAdmin, setIsAdmin] = useState(true) // In a real app, this would be determined by authentication
   const { toast } = useToast()
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "eva",
-      content: "Hello! I'm your AI assistant. How can I assist you today?",
-      timestamp: new Date().toLocaleTimeString(),
-    },
-  ])
-  const [newMessage, setNewMessage] = useState("")
-  const [isOnline, setIsOnline] = useState(true)
-  const [darkMode, setDarkMode] = useState(false)
-  const [fontSize, setFontSize] = useState("medium")
-  const [language, setLanguage] = useState("english")
-  const [autoSave, setAutoSave] = useState(true)
-  const [highContrast, setHighContrast] = useState(false)
-  const [notifications, setNotifications] = useState(true)
 
+  // Simulate profile visit count
   useEffect(() => {
-    // Apply theme changes
-    if (darkMode) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
+    // In a real app, this would be an API call to track visits
+    const storedVisits = localStorage.getItem("profileVisits")
+    if (!storedVisits) {
+      localStorage.setItem("profileVisits", "5")
     }
-  }, [darkMode])
+  }, [])
 
-  useEffect(() => {
-    // Apply font size changes
-    const sizes = { small: "14px", medium: "16px", large: "18px" }
-    document.documentElement.style.fontSize = sizes[fontSize as keyof typeof sizes]
-  }, [fontSize])
-
-  useEffect(() => {
-    // Apply high contrast changes
-    if (highContrast) {
-      document.documentElement.classList.add("high-contrast")
-    } else {
-      document.documentElement.classList.remove("high-contrast")
-    }
-  }, [highContrast])
-
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return
-
-    const userMessage = {
-      id: messages.length + 1,
-      sender: "user",
-      content: newMessage,
-      timestamp: new Date().toLocaleTimeString(),
+  const handleNewPostSubmit = () => {
+    if (!newPost.title || !newPost.category || !newPost.content) {
+      toast({
+        title: "Missing fields",
+        description: "Please fill in all fields before publishing",
+        variant: "destructive",
+      })
+      return
     }
 
-    setMessages([...messages, userMessage])
-
-    setTimeout(() => {
-      const aiResponse = {
-        id: messages.length + 2,
-        sender: "eva",
-        content: "Thank you for your message! I'm processing your request and will provide you with helpful insights shortly.",
-        timestamp: new Date().toLocaleTimeString(),
-      }
-      setMessages((prev) => [...prev, aiResponse])
-    }, 1000)
-
-    setNewMessage("")
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSendMessage()
+    const newPostObj = {
+      id: posts.length + 1,
+      title: newPost.title,
+      excerpt: newPost.content.substring(0, 120) + "...",
+      content: newPost.content,
+      category: newPost.category,
+      tags: newPost.category
+        .toLowerCase()
+        .split(",")
+        .map((tag) => tag.trim()),
+      date: new Date().toISOString().split("T")[0],
+      readTime: `${Math.max(1, Math.ceil(newPost.content.length / 1000))} min read`,
+      author: "Manan",
+      likes: 0,
+      comments: 0,
+      views: 0,
     }
-  }
 
-  const toggleTheme = () => {
-    setDarkMode(!darkMode)
+    setPosts([newPostObj, ...posts])
+    setNewPost({ title: "", category: "", content: "" })
+    setIsNewPostOpen(false)
+
     toast({
-      title: "Theme Updated",
-      description: `Switched to ${!darkMode ? "dark" : "light"} mode`,
+      title: "Post published!",
+      description: "Your post has been published successfully",
     })
   }
 
-  const handleNotificationToggle = () => {
-    setNotifications(!notifications)
-    toast({
-      title: "Notifications",
-      description: `Notifications ${!notifications ? "enabled" : "disabled"}`,
-    })
-  }
-
-  const handleAutoSaveToggle = (checked: boolean) => {
-    setAutoSave(checked)
-    toast({
-      title: "Auto Save",
-      description: `Auto save ${checked ? "enabled" : "disabled"}`,
-    })
-  }
-
-  const handleHighContrastToggle = (checked: boolean) => {
-    setHighContrast(checked)
-    toast({
-      title: "High Contrast",
-      description: `High contrast mode ${checked ? "enabled" : "disabled"}`,
-    })
+  const handleLike = (postId: number) => {
+    setPosts(posts.map((post) => (post.id === postId ? { ...post, likes: post.likes + 1 } : post)))
   }
 
   return (
     <div className="min-h-screen pt-20 pb-10">
-      <div className="container mx-auto px-4 max-w-7xl">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-6"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-blue-600 rounded-xl">
-              <Settings className="h-8 w-8 text-white" />
+      <div className="container mx-auto px-4 max-w-5xl">
+        {/* Blog Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <User className="h-8 w-8 text-pink-500" />
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Manan's Blog</h1>
+              <p className="text-gray-600 dark:text-gray-300">Thoughts, tutorials, daily progress & feedback!</p>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Settings & AI Assistant</h1>
           </div>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Customize your workspace and get professional assistance from our AI consultant
-          </p>
-        </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Profile Settings */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-            <Card className="bg-white dark:bg-gray-800/30 backdrop-blur-sm h-full">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="p-2 bg-green-600 rounded-lg">
-                    <User className="h-5 w-5 text-white" />
-                  </div>
-                  Profile Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Theme Mode</span>
-                  <Button onClick={toggleTheme} className="bg-blue-600 hover:bg-blue-700 text-white">
-                    {darkMode ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
-                    {darkMode ? "Light" : "Dark"}
-                  </Button>
-                </div>
+          <div className="flex items-center gap-4">
+            <Badge className="bg-pink-500 text-white px-3 py-1">{profileVisits} Profile Visits</Badge>
 
-                <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Font Size</span>
-                  <Select value={fontSize} onValueChange={setFontSize}>
-                    <SelectTrigger className="w-28 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="small">Small</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="large">Large</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            {isAdmin && (
+              <Button onClick={() => setIsNewPostOpen(true)} className="bg-pink-500 hover:bg-pink-600 text-white">
+                <PenSquare className="h-4 w-4 mr-2" />
+                Write New Post
+              </Button>
+            )}
+          </div>
+        </div>
 
-                <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Language</span>
-                  <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger className="w-28 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="english">English</SelectItem>
-                      <SelectItem value="nepali">नेपाली</SelectItem>
-                      <SelectItem value="hindi">हिन्दी</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-8"></div>
 
-                <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Auto Save</span>
-                  <Switch checked={autoSave} onCheckedChange={handleAutoSaveToggle} />
-                </div>
-
-                <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">High Contrast</span>
-                  <Switch checked={highContrast} onCheckedChange={handleHighContrastToggle} />
-                </div>
-
-                <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600/50 transition-colors" onClick={handleNotificationToggle}>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Notifications</span>
-                  <Bell className={`h-5 w-5 ${notifications ? 'text-blue-500' : 'text-gray-400'}`} />
-                </div>
-
-                <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600/50 transition-colors">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">Privacy & Security</span>
-                  <Shield className="h-5 w-5 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* AI Consultant */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-            <Card className="bg-white dark:bg-gray-800/30 backdrop-blur-sm h-full">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
-                    <div className="p-2 bg-blue-600 rounded-lg">
-                      <Bot className="h-5 w-5 text-white" />
+        {/* Blog Posts */}
+        {posts.length > 0 ? (
+          <div className="space-y-8">
+            {posts.map((post) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="bg-white dark:bg-gray-800/30 backdrop-blur-sm rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
+                      {post.category}
+                    </Badge>
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      <span>{post.date}</span>
+                      <span className="mx-2">•</span>
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>{post.readTime}</span>
                     </div>
-                    Eva Assistant
-                  </CardTitle>
-                  <Badge className={`${isOnline ? "bg-green-500" : "bg-gray-500"} text-white`}>
-                    {isOnline ? "Online" : "Offline"}
-                  </Badge>
-                </div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Professional assistant for technical guidance</p>
-              </CardHeader>
-              <CardContent>
-                {/* Chat Messages */}
-                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 h-48 overflow-y-auto mb-4 space-y-2">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-xs p-2 rounded-lg text-sm ${
-                          message.sender === "user"
-                            ? "bg-blue-600 text-white"
-                            : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700"
-                        }`}
+                  </div>
+
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">{post.title}</h2>
+
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{post.excerpt}</p>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {post.tags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          {message.sender === "eva" ? (
-                            <Bot className="h-3 w-3 text-blue-600" />
-                          ) : (
-                            <User className="h-3 w-3" />
-                          )}
-                          <span className="text-xs opacity-70">
-                            {message.sender === "eva" ? "Eva" : "You"}
-                          </span>
-                        </div>
-                        <p className="text-xs leading-relaxed">{message.content}</p>
-                        <span className="text-xs opacity-50 mt-1 block">{message.timestamp}</span>
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => handleLike(post.id)}
+                        className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
+                      >
+                        <Heart className="h-4 w-4" />
+                        <span>{post.likes}</span>
+                      </button>
+
+                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                        <MessageSquare className="h-4 w-4" />
+                        <span>{post.comments}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                        <Eye className="h-4 w-4" />
+                        <span>{post.views}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Message Input */}
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ask Eva anything..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-sm"
-                  />
-                  <Button onClick={handleSendMessage} className="bg-blue-600 hover:bg-blue-700 text-white px-3">
-                    <Send className="h-4 w-4" />
-                  </Button>
+                    <Button variant="link" className="text-purple-600 dark:text-purple-400 p-0">
+                      Read More
+                    </Button>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 text-gray-500 dark:text-gray-400">
+            <p className="text-xl">No posts available yet. Click "Write New Post" to start!</p>
+          </div>
+        )}
       </div>
+
+      {/* New Post Dialog */}
+      <Dialog open={isNewPostOpen} onOpenChange={setIsNewPostOpen}>
+        <DialogContent className="bg-gray-900 text-white border-gray-800 max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">New Blog Post</DialogTitle>
+            <DialogDescription className="text-gray-400">Share your thoughts with the world</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <label htmlFor="title" className="text-sm font-medium">
+                Post Title
+              </label>
+              <Input
+                id="title"
+                placeholder="Enter an engaging title for your post..."
+                value={newPost.title}
+                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                className="bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="category" className="text-sm font-medium">
+                Category
+              </label>
+              <Input
+                id="category"
+                placeholder="e.g., Tech, Personal, Tutorial, Career"
+                value={newPost.category}
+                onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
+                className="bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="content" className="text-sm font-medium">
+                Content
+              </label>
+              <Textarea
+                id="content"
+                placeholder="Write your blog content here... You can use line breaks to separate paragraphs."
+                rows={10}
+                value={newPost.content}
+                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                className="bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500"
+              />
+            </div>
+
+            <div className="text-sm text-gray-400">
+              Estimated read time: {Math.max(1, Math.ceil(newPost.content.length / 1000))} min
+            </div>
+
+            <div className="flex justify-between">
+              <Button onClick={handleNewPostSubmit} className="bg-pink-500 hover:bg-pink-600 text-white">
+                <PenSquare className="h-4 w-4 mr-2" />
+                Publish Post
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setIsNewPostOpen(false)}
+                className="border-gray-700 text-gray-300 hover:bg-gray-800"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
